@@ -3,10 +3,12 @@ const app = express()
 const bodyParser = require('body-parser')
 const PORT = process.env.PORT || 3001
 const morgan = require('morgan')
+const cors = require('cors')
 
 morgan.token('type', (req, res) => { return JSON.stringify(req.body) })
 
 app.use(morgan(':method :url :type :status :res[content-length] - :response-time ms'))
+app.use(cors())
 
 /** 
 const ll = (req, res, next) => {
