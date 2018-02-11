@@ -1,7 +1,20 @@
 const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
-const PORT = 3001
+const PORT = process.env.PORT || 3001
+const morgan = require('morgan')
+
+morgan.token('type', (req, res) => { return JSON.stringify(req.body) })
+
+app.use(morgan(':method :url :type :status :res[content-length] - :response-time ms'))
+
+/** 
+const ll = (req, res, next) => {
+    console.log('Time:', Date.now())
+    next()
+}
+app.use(ll)
+**/
 
 app.use(bodyParser.json())
 
@@ -64,4 +77,6 @@ app.delete('/api/persons/:id', (req, res) => {
     res.status(204).end()
 })
 
-app.listen(PORT)
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`)
+  })
