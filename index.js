@@ -71,29 +71,36 @@ app.get('/api/persons/:id' ,(req, res) => {
 		})
 })
 
-app.get('/info', (req, res) => {
-	let maara = persons.length
-	res.send(`luettelossa ${maara} henkilön tiedot <br>`  + new Date())
+app.get('/info', (req, res) => {	
+    Person
+		.find({})
+		.then(persons => {
+			res.send(`luettelossa ${persons.length} henkilön tiedot <br>`  + new Date())
+		})
 })
 
 app.post('/api/persons', (req, res) => {
-	const body = req.body
+    console.log("olen post")
+    const body = req.body
 	if (body.name === undefined || body.number === undefined) {
 		return res.status(400).json({ error: 'name and/or number missing' })
 	}
 	/**else if (persons.findIndex(p => p.name === body.name) > -1) {
         return res.status(418).json({error: 'name taken'})
     }**/
-	let p = 0
-	Person.find({}).then(persons => {p = persons.length})
-	console.log(p)
-	const person = new Person({
-		name: body.name,
-		number: body.number
-	})
-	person.save().then(res => {
+
+    Person
+    .findOneAndUpdate({name: body.name}, {name: body.name, number: body.number}, { upsert: true, new: true })
+    .then(formatPerson)
+    .then(savedAndFormattedPerson => {
+        res.json(savedAndFormattedPerson)
 		console.log(`lisätään henkilö ${body.name} numero ${body.number} luetteloon`)
-	})
+    })
+    .catch(error => {
+		console.log(error)
+		response.status(400).send({ error: 'malformatted id' })
+      })
+
 })
 
 app.delete('/api/persons/:id', (req, res) => {
